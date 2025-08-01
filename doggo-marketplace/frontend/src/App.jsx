@@ -1,23 +1,42 @@
-import { useState } from 'react'
-import './App.css'
+import { useEffect } from 'react'
+import { Routes, Route } from 'react-router-dom'
+import { useThemeStore } from './stores/themeStore'
+import { useAuthStore } from './stores/authStore'
+import Navbar from './components/Navbar'
+import Home from './pages/Home'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import Breeds from './pages/Breeds'
+import AddPet from './pages/AddPet'
+import PetDetails from './pages/PetDetails'
+import Profile from './pages/Profile'
+import AdminDashboard from './pages/AdminDashboard'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { theme } = useThemeStore()
+  const { initializeAuth } = useAuthStore()
+
+  useEffect(() => {
+    // Initialize auth state from localStorage
+    initializeAuth()
+  }, [initializeAuth])
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-center text-gray-900 dark:text-white mb-8">
-          🐶 Doggo Marketplace
-        </h1>
-        <div className="text-center">
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            onClick={() => setCount((count) => count + 1)}
-          >
-            Count is {count}
-          </button>
-        </div>
+    <div className={`min-h-screen ${theme === 'dark' ? 'dark' : ''}`}>
+      <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+        <Navbar />
+        <main className="pt-16">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/breeds" element={<Breeds />} />
+            <Route path="/add-pet" element={<AddPet />} />
+            <Route path="/pet/:id" element={<PetDetails />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+          </Routes>
+        </main>
       </div>
     </div>
   )
