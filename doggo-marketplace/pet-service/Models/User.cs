@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AdminApi.Models
+namespace PetService.Models
 {
     [Table("User")]
     public class User
@@ -72,50 +72,6 @@ namespace AdminApi.Models
         // Navigation properties
         public City? City { get; set; }
         public Role? Role { get; set; }
-    }
-
-    [Table("Role")]
-    public class Role
-    {
-        [Key]
-        [Column("roleid")]
-        public int RoleId { get; set; }
-
-        [Required]
-        [StringLength(20)]
-        [Column("rolename")]
-        public string RoleName { get; set; } = string.Empty;
-    }
-
-    [Table("City")]
-    public class City
-    {
-        [Key]
-        [Column("cityid")]
-        public int CityId { get; set; }
-
-        [Required]
-        [StringLength(50)]
-        [Column("cityname")]
-        public string CityName { get; set; } = string.Empty;
-
-        [Required]
-        [Column("stid")]
-        public int StateId { get; set; }
-
-        public State? State { get; set; }
-    }
-
-    [Table("State")]
-    public class State
-    {
-        [Key]
-        [Column("stid")]
-        public int StateId { get; set; }
-
-        [Required]
-        [StringLength(100)]
-        [Column("stname")]
-        public string StateName { get; set; } = string.Empty;
+        public ICollection<Pet> Pets { get; set; } = new List<Pet>();
     }
 } 

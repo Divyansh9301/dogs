@@ -25,7 +25,8 @@ namespace AdminApi.Services
         public async Task<AdminResponse?> LoginAsync(AdminLoginRequest request)
         {
             var admin = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == request.Email && u.Role == UserRole.ADMIN);
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Email == request.Email && u.Role.RoleName == "Admin");
 
             if (admin == null || !VerifyPassword(request.Password, admin.Password))
             {
@@ -34,10 +35,10 @@ namespace AdminApi.Services
 
             return new AdminResponse
             {
-                Id = admin.Id,
+                Id = admin.UserId,
                 Email = admin.Email,
-                Name = admin.Name,
-                Role = admin.Role.ToString()
+                Name = admin.Username,
+                Role = admin.Role?.RoleName ?? "Admin"
             };
         }
 
@@ -91,12 +92,16 @@ namespace AdminApi.Services
 
         public async Task<List<Pet>> GetAllPetsAsync()
         {
-            return await _context.Pets.Include(p => p.Seller).ToListAsync();
+            return await _context.Pets
+                .Include(p => p.Seller)
+                .Include(p => p.FatherBreed)
+                .Include(p => p.MotherBreed)
+                .ToListAsync();
         }
 
-        public async Task<List<Order>> GetAllOrdersAsync()
+        public async Task<List<BookPet>> GetAllOrdersAsync()
         {
-            return await _context.Orders
+            return await _context.BookPets
                 .Include(o => o.Buyer)
                 .Include(o => o.Pet)
                 .ToListAsync();
@@ -104,7 +109,7 @@ namespace AdminApi.Services
 
         public async Task<bool> DeletePetAsync(long petId)
         {
-            var pet = await _context.Pets.FindAsync(petId);
+            var pet = await _context.Pets.FindAsync((int)petId);
             if (pet == null)
                 return false;
 
@@ -115,8 +120,11 @@ namespace AdminApi.Services
 
         public async Task<bool> DeleteUserAsync(long userId)
         {
-            var user = await _context.Users.FindAsync(userId);
-            if (user == null || user.Role == UserRole.ADMIN)
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.UserId == (int)userId);
+            
+            if (user == null || user.Role?.RoleName == "Admin")
                 return false;
 
             _context.Users.Remove(user);
@@ -128,10 +136,10 @@ namespace AdminApi.Services
         {
             var totalUsers = await _context.Users.CountAsync();
             var totalPets = await _context.Pets.CountAsync();
-            var totalOrders = await _context.Orders.CountAsync();
-            var totalRevenue = await _context.Orders
-                .Where(o => o.Status == OrderStatus.COMPLETED)
-                .SumAsync(o => o.TotalAmountCents);
+            var totalOrders = await _context.BookPets.CountAsync();
+            var totalRevenue = await _context.BookPets
+                .Where(o => o.Status == "COMPLETED")
+                .SumAsync(o => (int)o.Price);
 
             return new Dictionary<string, int>
             {

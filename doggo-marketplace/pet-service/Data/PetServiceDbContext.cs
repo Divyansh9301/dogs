@@ -1,12 +1,11 @@
-using AdminApi.Models;
 using Microsoft.EntityFrameworkCore;
+using PetService.Models;
 
-namespace AdminApi.Data
+namespace PetService.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class PetServiceDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
+        public PetServiceDbContext(DbContextOptions<PetServiceDbContext> options) : base(options)
         {
         }
 
@@ -17,6 +16,7 @@ namespace AdminApi.Data
         public DbSet<Breed> Breeds { get; set; }
         public DbSet<Pet> Pets { get; set; }
         public DbSet<BookPet> BookPets { get; set; }
+        public DbSet<Bill> Bills { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,39 +25,39 @@ namespace AdminApi.Data
             // Configure User relationships
             modelBuilder.Entity<User>()
                 .HasOne(u => u.City)
-                .WithMany()
+                .WithMany(c => c.Users)
                 .HasForeignKey(u => u.CityId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Role)
-                .WithMany()
+                .WithMany(r => r.Users)
                 .HasForeignKey(u => u.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Configure Pet relationships
             modelBuilder.Entity<Pet>()
                 .HasOne(p => p.Seller)
-                .WithMany()
+                .WithMany(u => u.Pets)
                 .HasForeignKey(p => p.SellerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Pet>()
                 .HasOne(p => p.FatherBreed)
-                .WithMany()
+                .WithMany(b => b.FatherBreedPets)
                 .HasForeignKey(p => p.FatherBreedId)
                 .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Pet>()
                 .HasOne(p => p.MotherBreed)
-                .WithMany()
+                .WithMany(b => b.MotherBreedPets)
                 .HasForeignKey(p => p.MotherBreedId)
                 .OnDelete(DeleteBehavior.SetNull);
 
             // Configure BookPet relationships
             modelBuilder.Entity<BookPet>()
                 .HasOne(bp => bp.Pet)
-                .WithMany()
+                .WithMany(p => p.BookPets)
                 .HasForeignKey(bp => bp.PetId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -67,16 +67,27 @@ namespace AdminApi.Data
                 .HasForeignKey(bp => bp.BuyerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Configure Bill relationships
+            modelBuilder.Entity<Bill>()
+                .HasOne(b => b.Booking)
+                .WithMany(bp => bp.Bills)
+                .HasForeignKey(b => b.BookingId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // Configure City-State relationship
             modelBuilder.Entity<City>()
                 .HasOne(c => c.State)
-                .WithMany()
+                .WithMany(s => s.Cities)
                 .HasForeignKey(c => c.StateId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Configure enum conversions
             modelBuilder.Entity<Pet>()
                 .Property(p => p.Gender)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<BookPet>()
+                .Property(bp => bp.Status)
                 .HasConversion<string>();
         }
     }

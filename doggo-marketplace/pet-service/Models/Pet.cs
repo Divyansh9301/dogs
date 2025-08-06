@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AdminApi.Models
+namespace PetService.Models
 {
     [Table("Pet")]
     public class Pet
@@ -21,7 +21,7 @@ namespace AdminApi.Models
 
         [Required]
         [Column("gender")]
-        public Gender Gender { get; set; }
+        public PetGender Gender { get; set; }
 
         [Required]
         [StringLength(225)]
@@ -56,71 +56,19 @@ namespace AdminApi.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation properties
-        [ForeignKey("SellerId")]
-        public User? Seller { get; set; }
-
         [ForeignKey("FatherBreedId")]
         public Breed? FatherBreed { get; set; }
 
         [ForeignKey("MotherBreedId")]
         public Breed? MotherBreed { get; set; }
+
+        [ForeignKey("SellerId")]
+        public User? Seller { get; set; }
+
+        public ICollection<BookPet> BookPets { get; set; } = new List<BookPet>();
     }
 
-    [Table("Breed")]
-    public class Breed
-    {
-        [Key]
-        [Column("bid")]
-        public int BreedId { get; set; }
-
-        [Required]
-        [StringLength(100)]
-        [Column("bname")]
-        public string BreedName { get; set; } = string.Empty;
-    }
-
-    [Table("BookPet")]
-    public class BookPet
-    {
-        [Key]
-        [Column("bk_id")]
-        public int BookId { get; set; }
-
-        [Required]
-        [Column("p_id")]
-        public int PetId { get; set; }
-
-        [Required]
-        [Column("Price")]
-        public float Price { get; set; }
-
-        [Required]
-        [Column("date")]
-        public DateOnly Date { get; set; }
-
-        [Required]
-        [Column("time")]
-        public TimeOnly Time { get; set; }
-
-        [Required]
-        [Column("buyer_id")]
-        public int BuyerId { get; set; }
-
-        [Column("status")]
-        public string Status { get; set; } = "PENDING";
-
-        [Column("created_at")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-        // Navigation properties
-        [ForeignKey("PetId")]
-        public Pet? Pet { get; set; }
-
-        [ForeignKey("BuyerId")]
-        public User? Buyer { get; set; }
-    }
-
-    public enum Gender
+    public enum PetGender
     {
         Male,
         Female

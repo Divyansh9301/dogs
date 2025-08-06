@@ -1,15 +1,66 @@
 services:
   db:
     image: mysql:8.4
-    container_name: pets_mysql
+    container_name: tinyfur_mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: petsdb
+      MYSQL_DATABASE: p26__tinyfurdb
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
       - "3306:3306"
+    networks:
+      - tinyfur-network
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: tinyfur_auth_service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/p26__tinyfurdb
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    networks:
+      - tinyfur-network
+
+  pet-service:
+    build:
+      context: ./pet-service
+      dockerfile: Dockerfile
+    container_name: tinyfur_pet_service
+    ports:
+      - "5001:80"
+    depends_on:
+      - db
+    environment:
+      - ConnectionStrings__Default=Server=db;Port=3306;Database=p26__tinyfurdb;Uid=root;Pwd=root;
+    networks:
+      - tinyfur-network
+
+  admin-service:
+    build:
+      context: ./admin-api
+      dockerfile: Dockerfile
+    container_name: tinyfur_admin_service
+    ports:
+      - "5000:80"
+    depends_on:
+      - db
+    environment:
+      - ConnectionStrings__Default=server=db;port=3306;user=root;password=root;database=p26__tinyfurdb
+    networks:
+      - tinyfur-network
+
 volumes:
-  mysql_data: {} 
+  mysql_data: {}
+
+networks:
+  tinyfur-network:
+    driver: bridge 
