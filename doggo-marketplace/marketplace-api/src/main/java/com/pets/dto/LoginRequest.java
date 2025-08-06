@@ -1,22 +1,28 @@
 package com.pets.dto;
 
+import jakarta.validation.constraints.*;
+
 public class LoginRequest {
-    private String email;
+    @Email(message = "Email should be valid")
+    @NotBlank(message = "Email is required")
+    private String emailId;
+
+    @NotBlank(message = "Password is required")
     private String password;
 
     public LoginRequest() {}
 
-    public LoginRequest(String email, String password) {
-        this.email = email;
+    public LoginRequest(String emailId, String password) {
+        this.emailId = emailId;
         this.password = password;
     }
 
-    public String getEmail() {
-        return email;
+    public String getEmailId() {
+        return emailId;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setEmailId(String emailId) {
+        this.emailId = emailId;
     }
 
     public String getPassword() {

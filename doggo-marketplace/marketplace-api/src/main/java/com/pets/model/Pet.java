@@ -1,192 +1,136 @@
 package com.pets.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import jakarta.validation.constraints.*;
 
 @Entity
-@Table(name = "pets")
+@Table(name = "Pet")
 public class Pet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "p_id")
+    private Integer pId;
 
-    @Column(nullable = false)
-    private String name;
+    @Column(name = "p_name", nullable = false)
+    @NotBlank(message = "Pet name is required")
+    @Size(max = 100)
+    private String pName;
 
-    @Column(nullable = false)
-    private String breed;
+    @Column(name = "p_age", nullable = false)
+    @NotNull(message = "Pet age is required")
+    private Integer pAge;
 
-    @Column(name = "father_breed")
-    private String fatherBreed;
+    @Column(name = "gender", nullable = false)
+    @NotBlank(message = "Gender is required")
+    private String gender; // Radio Button value
 
-    @Column(name = "mother_breed")
-    private String motherBreed;
+    @Column(name = "p_photo", nullable = false)
+    @NotBlank(message = "Pet photo is required")
+    @Size(max = 255)
+    private String pPhoto;
 
-    @Column(name = "age_months", nullable = false)
-    private Integer ageMonths;
+    @Column(name = "is_vaccinated", nullable = false)
+    @NotNull(message = "Vaccination status is required")
+    private Boolean isVaccinated; // TINYINT
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Gender gender;
+    @Column(name = "fid", nullable = false)
+    @NotNull(message = "Father breed is required")
+    private Integer fid; // Foreign Key references breed(bid)
 
-    @Column(nullable = false)
-    private Boolean vaccinated;
+    @Column(name = "mid", nullable = false)
+    @NotNull(message = "Mother breed is required")
+    private Integer mid; // Foreign Key references breed(bid)
 
-    @Column(name = "price_cents", nullable = false)
-    private Integer priceCents;
+    @Column(name = "seller_id", nullable = false)
+    @NotNull(message = "Seller is required")
+    private Integer sellerId; // Foreign Key references user(userid)
 
-    @ManyToOne
-    @JoinColumn(name = "seller_id")
-    private User seller;
+    // Default constructor
+    public Pet() {}
 
-    @Column(name = "sold_out", nullable = false)
-    private Boolean soldOut = false;
-
-    @Column(name = "img_url")
-    private String imgUrl;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "medical_history")
-    private String medicalHistory;
-
-    @Column
-    private String description;
-
-    @Column
-    private String location;
-
-    public Pet() {
-        this.createdAt = LocalDateTime.now();
+    // Constructor with all fields
+    public Pet(String pName, Integer pAge, String gender, String pPhoto, 
+               Boolean isVaccinated, Integer fid, Integer mid, Integer sellerId) {
+        this.pName = pName;
+        this.pAge = pAge;
+        this.gender = gender;
+        this.pPhoto = pPhoto;
+        this.isVaccinated = isVaccinated;
+        this.fid = fid;
+        this.mid = mid;
+        this.sellerId = sellerId;
     }
 
     // Getters and Setters
-    public Long getId() {
-        return id;
+    public Integer getPId() {
+        return pId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setPId(Integer pId) {
+        this.pId = pId;
     }
 
-    public String getName() {
-        return name;
+    public String getPName() {
+        return pName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setPName(String pName) {
+        this.pName = pName;
     }
 
-    public String getBreed() {
-        return breed;
+    public Integer getPAge() {
+        return pAge;
     }
 
-    public void setBreed(String breed) {
-        this.breed = breed;
+    public void setPAge(Integer pAge) {
+        this.pAge = pAge;
     }
 
-    public String getFatherBreed() {
-        return fatherBreed;
-    }
-
-    public void setFatherBreed(String fatherBreed) {
-        this.fatherBreed = fatherBreed;
-    }
-
-    public String getMotherBreed() {
-        return motherBreed;
-    }
-
-    public void setMotherBreed(String motherBreed) {
-        this.motherBreed = motherBreed;
-    }
-
-    public Integer getAgeMonths() {
-        return ageMonths;
-    }
-
-    public void setAgeMonths(Integer ageMonths) {
-        this.ageMonths = ageMonths;
-    }
-
-    public Gender getGender() {
+    public String getGender() {
         return gender;
     }
 
-    public void setGender(Gender gender) {
+    public void setGender(String gender) {
         this.gender = gender;
     }
 
-    public Boolean getVaccinated() {
-        return vaccinated;
+    public String getPPhoto() {
+        return pPhoto;
     }
 
-    public void setVaccinated(Boolean vaccinated) {
-        this.vaccinated = vaccinated;
+    public void setPPhoto(String pPhoto) {
+        this.pPhoto = pPhoto;
     }
 
-    public Integer getPriceCents() {
-        return priceCents;
+    public Boolean getIsVaccinated() {
+        return isVaccinated;
     }
 
-    public void setPriceCents(Integer priceCents) {
-        this.priceCents = priceCents;
+    public void setIsVaccinated(Boolean isVaccinated) {
+        this.isVaccinated = isVaccinated;
     }
 
-    public User getSeller() {
-        return seller;
+    public Integer getFid() {
+        return fid;
     }
 
-    public void setSeller(User seller) {
-        this.seller = seller;
+    public void setFid(Integer fid) {
+        this.fid = fid;
     }
 
-    public Boolean getSoldOut() {
-        return soldOut;
+    public Integer getMid() {
+        return mid;
     }
 
-    public void setSoldOut(Boolean soldOut) {
-        this.soldOut = soldOut;
+    public void setMid(Integer mid) {
+        this.mid = mid;
     }
 
-    public String getImgUrl() {
-        return imgUrl;
+    public Integer getSellerId() {
+        return sellerId;
     }
 
-    public void setImgUrl(String imgUrl) {
-        this.imgUrl = imgUrl;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public String getMedicalHistory() {
-        return medicalHistory;
-    }
-
-    public void setMedicalHistory(String medicalHistory) {
-        this.medicalHistory = medicalHistory;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
+    public void setSellerId(Integer sellerId) {
+        this.sellerId = sellerId;
     }
 } 

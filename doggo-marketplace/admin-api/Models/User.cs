@@ -17,7 +17,7 @@ namespace AdminApi.Models
 
         [Required]
         [StringLength(50)]
-        [Column("email")]
+        [Column("email_id")]
         public string Email { get; set; } = string.Empty;
 
         [Required]

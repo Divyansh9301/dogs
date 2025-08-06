@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { userAuthService } from '../services/authService'
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -22,13 +23,17 @@ const Register = () => {
   const onSubmit = async (data) => {
     setLoading(true)
     try {
-      // Mock registration - replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Call the actual registration API
+      const response = await userAuthService.register({
+        name: data.name,
+        email: data.email,
+        password: data.password
+      })
       
-      toast.success('Registration successful! Please log in.')
-      navigate('/login')
+      toast.success('Registration successful! You are now logged in.')
+      navigate('/')
     } catch (error) {
-      toast.error('Registration failed. Please try again.')
+      toast.error(error.message || 'Registration failed. Please try again.')
     } finally {
       setLoading(false)
     }

@@ -1,57 +1,110 @@
 package com.pets.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Table(name = "User")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "userid")
+    private Long userid;
 
-    @Column(unique = true, nullable = false)
-    private String email;
+    @Column(name = "username", nullable = false)
+    @NotBlank(message = "Username is required")
+    @Size(min = 2, max = 50, message = "Username must be between 2 and 50 characters")
+    private String username;
 
-    @Column(nullable = false)
+    @Column(name = "email_id", nullable = false, unique = true)
+    @Email(message = "Email should be valid")
+    @NotBlank(message = "Email is required")
+    @Size(max = 50)
+    private String emailId;
+
+    @Column(name = "contact_no", nullable = false, unique = true)
+    @NotBlank(message = "Contact number is required")
+    @Size(max = 50)
+    private String contactNo;
+
+    @Column(name = "address", nullable = false)
+    @NotBlank(message = "Address is required")
+    @Size(max = 50)
+    private String address;
+
+    @Column(name = "password", nullable = false)
+    @NotBlank(message = "Password is required")
+    @Size(max = 50)
     private String password;
 
-    @Column(nullable = false)
-    private String name;
+    @Column(name = "aadhar_no", nullable = false)
+    @NotNull(message = "Aadhar number is required")
+    private Long aadharNo;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private UserRole role = UserRole.USER;
+    @Column(name = "cityid", nullable = false)
+    @NotNull(message = "City is required")
+    private Integer cityid;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(name = "roleid", nullable = false)
+    @NotNull(message = "Role is required")
+    private Integer roleid;
 
-    public User() {
-        this.createdAt = LocalDateTime.now();
-    }
+    // Default constructor
+    public User() {}
 
-    public User(String email, String password, String name) {
-        this.email = email;
+    // Constructor with all fields
+    public User(String username, String emailId, String contactNo, String address, 
+                String password, Long aadharNo, Integer cityid, Integer roleid) {
+        this.username = username;
+        this.emailId = emailId;
+        this.contactNo = contactNo;
+        this.address = address;
         this.password = password;
-        this.name = name;
-        this.createdAt = LocalDateTime.now();
+        this.aadharNo = aadharNo;
+        this.cityid = cityid;
+        this.roleid = roleid;
     }
 
     // Getters and Setters
-    public Long getId() {
-        return id;
+    public Long getUserid() {
+        return userid;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUserid(Long userid) {
+        this.userid = userid;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUsername() {
+        return username;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmailId() {
+        return emailId;
+    }
+
+    public void setEmailId(String emailId) {
+        this.emailId = emailId;
+    }
+
+    public String getContactNo() {
+        return contactNo;
+    }
+
+    public void setContactNo(String contactNo) {
+        this.contactNo = contactNo;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getPassword() {
@@ -62,27 +115,27 @@ public class User {
         this.password = password;
     }
 
-    public String getName() {
-        return name;
+    public Long getAadharNo() {
+        return aadharNo;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setAadharNo(Long aadharNo) {
+        this.aadharNo = aadharNo;
     }
 
-    public UserRole getRole() {
-        return role;
+    public Integer getCityid() {
+        return cityid;
     }
 
-    public void setRole(UserRole role) {
-        this.role = role;
+    public void setCityid(Integer cityid) {
+        this.cityid = cityid;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public Integer getRoleid() {
+        return roleid;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setRoleid(Integer roleid) {
+        this.roleid = roleid;
     }
 } 
