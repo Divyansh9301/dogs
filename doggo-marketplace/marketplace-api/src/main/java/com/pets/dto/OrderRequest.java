@@ -1,21 +1,21 @@
 package com.pets.dto;
 
 public class OrderRequest {
-    private Long petId;
+    private Integer petId;
     private String paymentMethod;
 
     public OrderRequest() {}
 
-    public OrderRequest(Long petId, String paymentMethod) {
+    public OrderRequest(Integer petId, String paymentMethod) {
         this.petId = petId;
         this.paymentMethod = paymentMethod;
     }
 
-    public Long getPetId() {
+    public Integer getPetId() {
         return petId;
     }
 
-    public void setPetId(Long petId) {
+    public void setPetId(Integer petId) {
         this.petId = petId;
     }
 
@@ -26,4 +26,4 @@ public class OrderRequest {
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
-} 
+}

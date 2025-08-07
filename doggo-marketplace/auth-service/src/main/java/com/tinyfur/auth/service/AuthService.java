@@ -127,4 +127,20 @@ public class AuthService {
             savedUser.getUserId()
         );
     }
-} 
+
+    public String validateTokenAndGetUser(String token) {
+        try {
+            String email = jwtService.extractEmail(token);
+            if (jwtService.isTokenValid(token, email)) {
+                // Optional: Check if user still exists in database
+                Optional<User> user = userRepository.findByEmail(email);
+                if (user.isPresent() && user.get().getIsActive()) {
+                    return email;
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+}

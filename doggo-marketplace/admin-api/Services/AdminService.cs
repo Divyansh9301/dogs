@@ -2,11 +2,6 @@ using AdminApi.Data;
 using AdminApi.DTOs;
 using AdminApi.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 using BC = BCrypt.Net.BCrypt;
 
 namespace AdminApi.Services
@@ -14,21 +9,19 @@ namespace AdminApi.Services
     public class AdminService
     {
         private readonly ApplicationDbContext _context;
-        private readonly IConfiguration _configuration;
 
-        public AdminService(ApplicationDbContext context, IConfiguration configuration)
+        public AdminService(ApplicationDbContext context)
         {
             _context = context;
-            _configuration = configuration;
         }
 
-        public async Task<AdminResponse?> LoginAsync(AdminLoginRequest request)
+        public async Task<AdminResponse?> ValidateAdminAsync(string username, string password)
         {
             var admin = await _context.Users
                 .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.Email == request.Email && u.Role.RoleName == "Admin");
+                .FirstOrDefaultAsync(u => u.Username == username && u.Role.RoleName == "Admin");
 
-            if (admin == null || !VerifyPassword(request.Password, admin.Password))
+            if (admin == null || !VerifyPassword(password, admin.Password))
             {
                 return null;
             }
@@ -42,28 +35,16 @@ namespace AdminApi.Services
             };
         }
 
-        public string GenerateJwtToken(AdminResponse admin)
+        public async Task<bool> IsValidAdminAsync(string email)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? "your-secret-key-here"));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            if (string.IsNullOrEmpty(email))
+                return false;
 
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, admin.Id.ToString()),
-                new Claim(ClaimTypes.Email, admin.Email),
-                new Claim(ClaimTypes.Name, admin.Name),
-                new Claim(ClaimTypes.Role, admin.Role)
-            };
+            var admin = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Email == email && u.Role.RoleName == "Admin");
 
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(24),
-                signingCredentials: credentials
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return admin != null;
         }
 
         private bool VerifyPassword(string inputPassword, string hashedPassword)
@@ -150,4 +131,4 @@ namespace AdminApi.Services
             };
         }
     }
-} 
+}

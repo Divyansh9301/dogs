@@ -1,7 +1,9 @@
 server:
-  port: 8081
+  port: 8080
 
 spring:
+  application:
+    name: auth-service
   datasource:
     url: jdbc:mysql://localhost:3306/p26__tinyfurdb
     username: root
@@ -16,12 +18,11 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
 
-# Auth service communication
-auth-service:
-  url: http://localhost:8080
-  validate-endpoint: /api/auth/validate
+jwt:
+  secret: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
+  expiration: 86400000
 
 logging:
   level:
-    com.pets: DEBUG
-    org.springframework.security: DEBUG
+    com.tinyfur: DEBUG
+    org.springframework.security: DEBUG 

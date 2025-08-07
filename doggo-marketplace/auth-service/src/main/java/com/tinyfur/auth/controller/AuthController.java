@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*")
@@ -39,6 +41,26 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/validate")
+    public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String authHeader) {
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.badRequest().body(new ErrorResponse("Invalid token", "Authorization header missing or invalid"));
+            }
+            
+            String token = authHeader.substring(7);
+            String email = authService.validateTokenAndGetUser(token);
+            
+            if (email != null) {
+                return ResponseEntity.ok(Map.of("valid", true, "email", email));
+            } else {
+                return ResponseEntity.badRequest().body(new ErrorResponse("Invalid token", "Token is expired or invalid"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse("Token validation failed", e.getMessage()));
+        }
+    }
+
     public static class ErrorResponse {
         private String error;
         private String message;
@@ -56,4 +78,4 @@ public class AuthController {
             return message;
         }
     }
-} 
+}

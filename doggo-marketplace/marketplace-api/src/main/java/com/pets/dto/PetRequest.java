@@ -4,17 +4,12 @@ import com.pets.model.Gender;
 
 public class PetRequest {
     private String name;
-    private String breed;
-    private String fatherBreed;
-    private String motherBreed;
+    private Integer fatherBreedId;
+    private Integer motherBreedId;
     private Integer ageMonths;
     private Gender gender;
     private Boolean vaccinated;
-    private Integer priceCents;
     private String imgUrl;
-    private String medicalHistory;
-    private String description;
-    private String location;
 
     public PetRequest() {}
 
@@ -27,28 +22,20 @@ public class PetRequest {
         this.name = name;
     }
 
-    public String getBreed() {
-        return breed;
+    public Integer getFatherBreedId() {
+        return fatherBreedId;
     }
 
-    public void setBreed(String breed) {
-        this.breed = breed;
+    public void setFatherBreedId(Integer fatherBreedId) {
+        this.fatherBreedId = fatherBreedId;
     }
 
-    public String getFatherBreed() {
-        return fatherBreed;
+    public Integer getMotherBreedId() {
+        return motherBreedId;
     }
 
-    public void setFatherBreed(String fatherBreed) {
-        this.fatherBreed = fatherBreed;
-    }
-
-    public String getMotherBreed() {
-        return motherBreed;
-    }
-
-    public void setMotherBreed(String motherBreed) {
-        this.motherBreed = motherBreed;
+    public void setMotherBreedId(Integer motherBreedId) {
+        this.motherBreedId = motherBreedId;
     }
 
     public Integer getAgeMonths() {
@@ -75,14 +62,6 @@ public class PetRequest {
         this.vaccinated = vaccinated;
     }
 
-    public Integer getPriceCents() {
-        return priceCents;
-    }
-
-    public void setPriceCents(Integer priceCents) {
-        this.priceCents = priceCents;
-    }
-
     public String getImgUrl() {
         return imgUrl;
     }
@@ -90,28 +69,4 @@ public class PetRequest {
     public void setImgUrl(String imgUrl) {
         this.imgUrl = imgUrl;
     }
-
-    public String getMedicalHistory() {
-        return medicalHistory;
-    }
-
-    public void setMedicalHistory(String medicalHistory) {
-        this.medicalHistory = medicalHistory;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-} 
+}

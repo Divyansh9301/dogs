@@ -1,14 +1,12 @@
 using AdminApi.DTOs;
 using AdminApi.Models;
 using AdminApi.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AdminApi.Controllers
 {
     [ApiController]
     [Route("api/admin")]
-    [AllowAnonymous]
     public class AdminController : ControllerBase
     {
         private readonly AdminService _adminService;
@@ -23,14 +21,19 @@ namespace AdminApi.Controllers
         {
             try
             {
-                var admin = await _adminService.LoginAsync(request);
+                var admin = await _adminService.ValidateAdminAsync(request.Username, request.Password);
                 if (admin == null)
                 {
                     return BadRequest(new { error = "Invalid credentials" });
                 }
 
-                var token = _adminService.GenerateJwtToken(admin);
-                return Ok(new { token, user = admin });
+                // Simply return user info without JWT token
+                return Ok(new { 
+                    message = "Login successful", 
+                    user = admin,
+                    // Store username in session or pass to frontend for subsequent requests
+                    adminSession = admin.Email 
+                });
             }
             catch (Exception ex)
             {
@@ -39,11 +42,16 @@ namespace AdminApi.Controllers
         }
 
         [HttpGet("dashboard/stats")]
-        [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> GetDashboardStats()
+        public async Task<IActionResult> GetDashboardStats([FromQuery] string adminSession)
         {
             try
             {
+                // Simple check: verify admin exists in database
+                if (!await _adminService.IsValidAdminAsync(adminSession))
+                {
+                    return Unauthorized(new { error = "Invalid admin session" });
+                }
+
                 var stats = await _adminService.GetDashboardStatsAsync();
                 return Ok(stats);
             }
@@ -54,11 +62,15 @@ namespace AdminApi.Controllers
         }
 
         [HttpGet("users")]
-        [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers([FromQuery] string adminSession)
         {
             try
             {
+                if (!await _adminService.IsValidAdminAsync(adminSession))
+                {
+                    return Unauthorized(new { error = "Invalid admin session" });
+                }
+
                 var users = await _adminService.GetAllUsersAsync();
                 return Ok(users);
             }
@@ -69,11 +81,15 @@ namespace AdminApi.Controllers
         }
 
         [HttpGet("pets")]
-        [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> GetAllPets()
+        public async Task<IActionResult> GetAllPets([FromQuery] string adminSession)
         {
             try
             {
+                if (!await _adminService.IsValidAdminAsync(adminSession))
+                {
+                    return Unauthorized(new { error = "Invalid admin session" });
+                }
+
                 var pets = await _adminService.GetAllPetsAsync();
                 return Ok(pets);
             }
@@ -84,11 +100,15 @@ namespace AdminApi.Controllers
         }
 
         [HttpGet("orders")]
-        [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> GetAllOrders()
+        public async Task<IActionResult> GetAllOrders([FromQuery] string adminSession)
         {
             try
             {
+                if (!await _adminService.IsValidAdminAsync(adminSession))
+                {
+                    return Unauthorized(new { error = "Invalid admin session" });
+                }
+
                 var orders = await _adminService.GetAllOrdersAsync();
                 return Ok(orders);
             }
@@ -99,11 +119,15 @@ namespace AdminApi.Controllers
         }
 
         [HttpDelete("pets/{id}")]
-        [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> DeletePet(long id)
+        public async Task<IActionResult> DeletePet(long id, [FromQuery] string adminSession)
         {
             try
             {
+                if (!await _adminService.IsValidAdminAsync(adminSession))
+                {
+                    return Unauthorized(new { error = "Invalid admin session" });
+                }
+
                 var result = await _adminService.DeletePetAsync(id);
                 if (!result)
                 {
@@ -118,11 +142,15 @@ namespace AdminApi.Controllers
         }
 
         [HttpDelete("users/{id}")]
-        [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> DeleteUser(long id)
+        public async Task<IActionResult> DeleteUser(long id, [FromQuery] string adminSession)
         {
             try
             {
+                if (!await _adminService.IsValidAdminAsync(adminSession))
+                {
+                    return Unauthorized(new { error = "Invalid admin session" });
+                }
+
                 var result = await _adminService.DeleteUserAsync(id);
                 if (!result)
                 {
@@ -136,4 +164,4 @@ namespace AdminApi.Controllers
             }
         }
     }
-} 
+}

@@ -5,16 +5,16 @@ import com.pets.model.Pet;
 import com.pets.service.PetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/pets")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 public class PetController {
-    
+
     @Autowired
     private PetService petService;
 
@@ -25,43 +25,31 @@ public class PetController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Pet> getPetById(@PathVariable Long id) {
-        try {
-            Pet pet = petService.getPetById(id);
-            return ResponseEntity.ok(pet);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Pet> getPetById(@PathVariable Integer id) {
+        Pet pet = petService.getPetById(id);
+        return ResponseEntity.ok(pet);
     }
 
     @PostMapping
-    public ResponseEntity<?> createPet(@RequestBody PetRequest request, @RequestParam Long sellerId) {
-        try {
-            Pet pet = petService.createPet(request, sellerId);
-            return ResponseEntity.ok(pet);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+    public ResponseEntity<Pet> createPet(@RequestBody PetRequest petRequest, Authentication authentication) {
+        // Extract user ID from authentication (this would be set by JWT filter)
+        Integer sellerId = 1; // For now, hardcode - in real app would extract from JWT
+        Pet pet = petService.createPet(petRequest, sellerId);
+        return ResponseEntity.ok(pet);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePet(@PathVariable Long id, @RequestBody PetRequest request, @RequestParam Long sellerId) {
-        try {
-            Pet pet = petService.updatePet(id, request, sellerId);
-            return ResponseEntity.ok(pet);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+    public ResponseEntity<Pet> updatePet(@PathVariable Integer id, @RequestBody PetRequest petRequest, Authentication authentication) {
+        Integer sellerId = 1; // For now, hardcode - in real app would extract from JWT
+        Pet pet = petService.updatePet(id, petRequest, sellerId);
+        return ResponseEntity.ok(pet);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletePet(@PathVariable Long id, @RequestParam Long sellerId) {
-        try {
-            petService.deletePet(id, sellerId);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+    public ResponseEntity<Void> deletePet(@PathVariable Integer id, Authentication authentication) {
+        Integer sellerId = 1; // For now, hardcode - in real app would extract from JWT
+        petService.deletePet(id, sellerId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/search")
@@ -70,15 +58,15 @@ public class PetController {
         return ResponseEntity.ok(pets);
     }
 
-    @GetMapping("/breed/{breed}")
-    public ResponseEntity<List<Pet>> getPetsByBreed(@PathVariable String breed) {
-        List<Pet> pets = petService.getPetsByBreed(breed);
+    @GetMapping("/breed/{breedId}")
+    public ResponseEntity<List<Pet>> getPetsByBreed(@PathVariable Integer breedId) {
+        List<Pet> pets = petService.getPetsByBreed(breedId);
         return ResponseEntity.ok(pets);
     }
 
     @GetMapping("/seller/{sellerId}")
-    public ResponseEntity<List<Pet>> getPetsBySeller(@PathVariable Long sellerId) {
+    public ResponseEntity<List<Pet>> getPetsBySeller(@PathVariable Integer sellerId) {
         List<Pet> pets = petService.getPetsBySeller(sellerId);
         return ResponseEntity.ok(pets);
     }
-} 
+}

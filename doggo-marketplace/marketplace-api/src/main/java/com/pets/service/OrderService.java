@@ -2,13 +2,14 @@ package com.pets.service;
 
 import com.pets.dto.OrderRequest;
 import com.pets.model.Order;
-import com.pets.model.OrderStatus;
 import com.pets.model.Pet;
 import com.pets.model.User;
+import com.pets.model.OrderStatus;
 import com.pets.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -23,58 +24,39 @@ public class OrderService {
     @Autowired
     private UserService userService;
 
-    public Order createOrder(OrderRequest request, Long buyerId) {
-        User buyer = userService.getUserById(buyerId);
+    public Order createOrder(OrderRequest request, Long userId) {
         Pet pet = petService.getPetById(request.getPetId());
-        
-        // Check if pet is available
-        if (pet.getSoldOut()) {
-            throw new RuntimeException("Pet is already sold");
-        }
-        
-        // Calculate total amount (pet price + processing fee)
-        int totalAmount = pet.getPriceCents() + 5000; // $50 processing fee
+        User buyer = userService.getUserById(userId);
         
         Order order = new Order();
-        order.setBuyer(buyer);
         order.setPet(pet);
-        order.setTotalAmountCents(totalAmount);
-        order.setPaymentMethod(request.getPaymentMethod());
+        order.setBuyer(buyer);
         order.setStatus(OrderStatus.PENDING);
-        
-        Order savedOrder = orderRepository.save(order);
-        
-        // Mark pet as sold
-        petService.markPetAsSold(pet.getId());
-        
-        return savedOrder;
-    }
+        order.setCreatedAt(LocalDateTime.now());
 
-    public Order getOrderById(Long id) {
-        return orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
-    }
-
-    public List<Order> getOrdersByBuyer(Long buyerId) {
-        User buyer = userService.getUserById(buyerId);
-        return orderRepository.findByBuyer(buyer);
-    }
-
-    public List<Order> getOrdersBySeller(Long sellerId) {
-        User seller = userService.getUserById(sellerId);
-        return orderRepository.findByPetSeller(seller);
-    }
-
-    public Order updateOrderStatus(Long orderId, OrderStatus status) {
-        Order order = getOrderById(orderId);
-        order.setStatus(status);
         return orderRepository.save(order);
     }
 
-    public void processPayment(Long orderId, String transactionId) {
-        Order order = getOrderById(orderId);
-        order.setTransactionId(transactionId);
-        order.setStatus(OrderStatus.PAID);
-        orderRepository.save(order);
+    public List<Order> getOrdersByUser(Long userId) {
+        User user = userService.getUserById(userId);
+        return orderRepository.findByBuyer(user);
     }
-} 
+
+    public Order getOrderById(Long orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+    }
+
+    public Order updateOrderStatus(Long orderId, OrderStatus status, Long userId) {
+        Order order = getOrderById(orderId);
+        
+        // Check if user is buyer or seller
+        if (!order.getBuyer().getUserid().equals(userId) && 
+            !order.getPet().getSellerId().equals(userId.intValue())) {
+            throw new RuntimeException("Not authorized to update this order");
+        }
+        
+        order.setStatus(status);
+        return orderRepository.save(order);
+    }
+}
